@@ -35,7 +35,6 @@ Output format:
 
 ```json
 {
-    "currentTime":{"date":31,"hours":17,"seconds":6,"month":2,"timezoneOffset":-60,"year":121,"minutes":38,"time":1617208686627,"day":3},
     "items":[
         {
             "blocked":false,
@@ -48,3 +47,7 @@ Output format:
     ]
 }
 ```
+
+You can limit the number of results too:
+
+`http://localhost:8080/jenkins/gobld-webhook/queue?limit=1`

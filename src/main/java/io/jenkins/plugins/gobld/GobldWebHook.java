@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -40,12 +41,12 @@ public class GobldWebHook implements UnprotectedRootAction {
     }
 
     public HttpResponse doQueue(StaplerRequest req) {
-        return new JsonHttpResponse(JSONObject.fromObject(getQueue()));
+        return new JsonHttpResponse(JSONObject.fromObject(getQueue(getLimitParameter(req))));
     }
 
     @RequirePOST
     public HttpResponse doQueuePost(StaplerRequest req) {
-        return new JsonHttpResponse(JSONObject.fromObject(getQueue()));
+        return new JsonHttpResponse(JSONObject.fromObject(getQueue(getLimitParameter(req))));
     }
 
     @Extension
@@ -61,16 +62,30 @@ public class GobldWebHook implements UnprotectedRootAction {
         }
     }
 
-    private QueueItems getQueue() {
+    private QueueItems getQueue(int limit) {
         Queue queue = Objects.requireNonNull(Jenkins.getInstanceOrNull()).getQueue();
         List<QueueItem> items = new java.util.ArrayList<>(Collections.emptyList());
-        for (Queue.Item item : queue.getItems()) {
+        Queue.Item[] queueItems;
+        if (limit > 0) {
+            queueItems = Arrays.copyOfRange(queue.getItems(), 0, limit);
+        } else {
+            queueItems = queue.getItems();
+        }
+        for (Queue.Item item : queueItems) {
             QueueItem queueItem = generateQueueItem(item);
             if (queueItem !=null) {
                 items.add(queueItem);
             }
         }
         return new QueueItems(items);
+    }
+
+    private int getLimitParameter(StaplerRequest req) {
+        int limit = 0;
+        if (req.hasParameter("limit")) {
+            limit = Integer.parseInt(req.getParameter("limit"));
+        }
+        return limit;
     }
 
     private QueueItem generateQueueItem(Queue.Item item) {
