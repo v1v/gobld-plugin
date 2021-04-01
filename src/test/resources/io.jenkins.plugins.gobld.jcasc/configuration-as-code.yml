@@ -1,0 +1,4 @@
+unclassified:
+  gobld:
+    assignUrl: "http://ci.gobld.com/api/assign"
+    terminateUrl: "http://ci.gobld.com/api/terminate"
